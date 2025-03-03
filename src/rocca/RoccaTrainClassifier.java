@@ -64,7 +64,10 @@ public class RoccaTrainClassifier {
     		String modelName = rtc.trainClassifier(arffFile);
     	}
     	
+    	
     	// Get a folder full of files
+    	// this is what I use to test Tristan's data - he gives a list of arff files (unfortunately with txt extension)
+    	// that he has already prepared e.g. one encounter has been taken out and he will test
 //    	File arffFolder = rtc.getAllArff();
 //    	File[] arffFiles = arffFolder.listFiles(new FilenameFilter() { 
 //    	    public boolean accept(File dirFiles, String filename) {
@@ -74,7 +77,7 @@ public class RoccaTrainClassifier {
 //    	for (File aFile : arffFiles) {
 //    		String modelName = rtc.trainClassifier(aFile);    		
 //    	}
-//    	
+    	
     }
     
     
@@ -165,7 +168,8 @@ public class RoccaTrainClassifier {
         System.out.println("Setting Options...");
         String[] options = new String[6];
         options[0] = "-I";		// number of iterations/trees
-        options[1] = "750";		// = 750
+//        options[1] = "750";		// = 750
+        options[1] = "10000";		// = 10,000 for the encounter classifier
         options[2] = "-K";		// number of attributes (aka mtry)
         options[3] = "5";		// = 3
         options[4] = "-S";		// seed for random number generator
