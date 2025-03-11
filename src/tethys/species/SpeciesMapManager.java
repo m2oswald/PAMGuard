@@ -64,6 +64,9 @@ public class SpeciesMapManager implements PamSettings {
 
 	private SpeciesMapManager() {
 		PamSettingManager.getInstance().registerSettings(this);
+		if (globalSpeciesMap == null) {
+			globalSpeciesMap = new GlobalSpeciesMap();
+		}
 	}
 	
 	/**
@@ -168,7 +171,7 @@ public class SpeciesMapManager implements PamSettings {
 		return new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				exportSpeciesMaps(parentFrame);
+				exportSpeciesMaps(parentFrame, null);
 			}
 		};
 	}
@@ -185,12 +188,13 @@ public class SpeciesMapManager implements PamSettings {
 	/**
 	 * Export all species maps to a serialized object file. 
 	 * @param parentFrame 
+	 * @param singleDataBlock name of datablock to automatically check.  
 	 * @return
 	 */
-	public boolean exportSpeciesMaps(Window parentFrame) {
+	public boolean exportSpeciesMaps(Window parentFrame, String singleDataBlock) {
 		// gather the species maps from the data blocks...
 		gatherSpeciesMaps();
-		GlobalSpeciesMap toExport = SpeciesMapIODialog.showDialog(parentFrame, globalSpeciesMap, true, null);
+		GlobalSpeciesMap toExport = SpeciesMapIODialog.showDialog(parentFrame, globalSpeciesMap, true, singleDataBlock);
 		if (toExport == null) {
 			return false;
 		}
@@ -281,7 +285,6 @@ public class SpeciesMapManager implements PamSettings {
 			return false;
 		}
 		
-		
 		// could put in a dialog to only select parts of the map if we wanted to ? 
 		int ans = WarnOnce.showWarning("Global Species Map", 
 				"Do you want to overwrite PAMGaurd species maps with the imported data ?",
@@ -295,6 +298,16 @@ public class SpeciesMapManager implements PamSettings {
 		while (iter.hasNext()) {
 			Entry<String, DataBlockSpeciesMap> entry = iter.next();
 			PamDataBlock dataBlock = PamController.getInstance().getDataBlockByLongName(entry.getKey());
+			if (dataBlock == null) {
+				// search any configuration. 
+				ArrayList<PamConfiguration> allConfigs = PamConfiguration.getAllConfigurations();
+				for (PamConfiguration aConfig : allConfigs) {
+					dataBlock = aConfig.getDataBlockByLongName(entry.getKey());
+					if (dataBlock != null) {
+						break;
+					}
+				}
+			}
 			if (dataBlock == null) {
 				String err = String.format("Data block %s does not exist in the current configuration", entry.getKey());
 				WarnOnce.showWarning("Missing data block", err, WarnOnce.WARNING_MESSAGE);
